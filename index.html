@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dipto · Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EDE8DC; --bg2: #E5DFCF;
+    --win: #F7F4EE; --win2: #EFEAE0;
+    --green: #6B9E78; --green-light: #A8C5AD; --green-pale: #D4E8D7;
+    --yellow: #E8C84A; --yellow-pale: #F5EAB4;
+    --rose: #D4847A; --rose-pale: #F5E0DD;
+    --blue: #7AAAB8; --blue-pale: #D4E8F0;
+    --purple: #9B8FBF; --purple-pale: #E8E4F5;
+    --text: #1E1C18; --text-muted: #6B6559;
+    --border: #C8C0AE; --border-light: #DDD7C8;
+    --shadow: rgba(30,28,24,0.11); --shadow-deep: rgba(30,28,24,0.2);
+    --radius: 10px; --radius-sm: 7px; --radius-lg: 14px;
+    --font-mono: 'Space Mono', monospace;
+    --font-body: 'DM Sans', sans-serif;
+    --font-display: 'Syne', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; font-family: var(--font-body); background: var(--bg); color: var(--text); overflow: hidden; user-select: none; }
+
+  /* ── DESKTOP ── */
+  #desktop {
+    position: fixed; inset: 0; overflow: hidden;
+    background: var(--bg)
+      url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='1' fill='%23C8C0AE' fill-opacity='0.32'/%3E%3C/svg%3E");
+  }
+  #desktop::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(circle at 18% 18%, rgba(107,158,120,0.07) 0%, transparent 48%),
+                radial-gradient(circle at 82% 80%, rgba(232,200,74,0.05) 0%, transparent 48%);
+  }
+
+  /* ── MENUBAR ── */
+  #menubar {
+    position: fixed; top: 0; left: 0; right: 0; height: 30px;
+    background: rgba(237,232,220,0.94); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 14px; gap: 18px;
+    z-index: 9999; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted);
+  }
+  .brand { font-family: var(--font-display); font-size: 12.5px; font-weight: 800; color: var(--text); letter-spacing: -.4px; }
+  .menu-items { display: flex; gap: 12px; }
+  .menu-items span { cursor: pointer; padding: 1px 6px; border-radius: 4px; transition: all .2s; }
+  .menu-items span:hover { background: var(--green-pale); color: var(--green); }
+  #menubar-time { margin-left: auto; }
+
+  /* ── DOCK ── */
+  #dock {
+    position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: flex-end; gap: 8px;
+    background: rgba(247,244,238,0.86); backdrop-filter: blur(20px);
+    border: 1px solid var(--border); border-radius: 18px;
+    padding: 8px 14px;
+    box-shadow: 0 6px 28px var(--shadow-deep), 0 1px 0 rgba(255,255,255,0.5) inset;
+    z-index: 9000;
+  }
+  .dock-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; transition: transform .2s cubic-bezier(.34,1.56,.64,1); position: relative; }
+  .dock-item:hover { transform: translateY(-7px) scale(1.14); }
+  .dock-item:hover .dock-label { opacity: 1; transform: translateY(0); }
+  .dock-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 2px 6px var(--shadow); transition: box-shadow .2s; }
+  .dock-item:hover .dock-icon { box-shadow: 0 5px 16px var(--shadow-deep); }
+  .dock-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--green); opacity: 0; transition: opacity .3s; }
+  .dock-dot.active { opacity: 1; }
+  .dock-label { position: absolute; bottom: calc(100% + 8px); background: var(--text); color: #fff; font-family: var(--font-mono); font-size: 9px; padding: 2px 7px; border-radius: 5px; white-space: nowrap; opacity: 0; transform: translateY(5px); transition: all .2s; pointer-events: none; }
+  .dock-label::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 3px solid transparent; border-top-color: var(--text); }
+  .dock-sep { width: 1px; height: 30px; background: var(--border); align-self: center; margin: 0 3px; }
+
+  /* ── WINDOW BASE ── */
+  .window {
+    position: absolute; background: var(--win);
+    border: 1px solid var(--border-light); border-radius: var(--radius-lg);
+    box-shadow: 0 4px 20px var(--shadow), 0 1px 0 rgba(255,255,255,0.8) inset;
+    min-width: 280px; overflow: hidden;
+    transition: box-shadow .2s, opacity .22s, transform .28s cubic-bezier(.34,1.56,.64,1);
+    will-change: transform;
+  }
+  .window.opening { animation: wOpen .32s cubic-bezier(.34,1.56,.64,1) forwards; }
+  .window.closing { animation: wClose .22s ease-in forwards; }
+  .window.focused { box-shadow: 0 10px 40px var(--shadow-deep), 0 1px 0 rgba(255,255,255,0.8) inset; }
+  .window.minimized { transform: scale(0.86) translateY(18px); opacity: 0; pointer-events: none; }
+  @keyframes wOpen { from { opacity:0; transform:scale(0.89) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
+  @keyframes wClose { from { opacity:1; transform:scale(1); } to { opacity:0; transform:scale(0.89) translateY(7px); } }
+
+  /* ── TITLEBAR ── */
+  .titlebar { display: flex; align-items: center; gap: 7px; padding: 8px 12px; background: var(--win2); border-bottom: 1px solid var(--border-light); cursor: grab; }
+  .titlebar:active { cursor: grabbing; }
+  .traffic-lights { display: flex; gap: 5px; }
+  .tl { width: 11px; height: 11px; border-radius: 50%; cursor: pointer; transition: filter .15s; position: relative; }
+  .tl:hover { filter: brightness(0.82); }
+  .tl-close { background: #FF6057; } .tl-min { background: #FEBC2E; } .tl-max { background: #28C840; }
+  .tl-close:hover::after { content: '✕'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:7px; color:#8B1F1C; }
+  .tl-min:hover::after   { content: '—'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:7px; color:#8B5F00; }
+  .tl-max:hover::after   { content: '+'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:7px; color:#0A5E1A; }
+  .titlebar-title { flex: 1; text-align: center; font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); letter-spacing: .2px; }
+
+  /* ── WIN BODY ── */
+  .win-body { overflow-y: auto; overflow-x: hidden; max-height: calc(100vh - 140px); scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  .win-body::-webkit-scrollbar { width: 4px; }
+  .win-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* ── RING ── */
+  .win-ring { position: absolute; inset: -2px; border: 2px solid var(--green-light); border-radius: calc(var(--radius-lg) + 2px); pointer-events: none; opacity: 0; transition: opacity .2s; }
+  .window.focused .win-ring { opacity: 1; }
+
+  /* ── RESIZE ── */
+  .resize-handle { position: absolute; bottom: 0; right: 0; width: 14px; height: 14px; cursor: nwse-resize; display: flex; align-items: flex-end; justify-content: flex-end; padding: 2px; }
+  .resize-handle svg { opacity: 0.28; transition: opacity .2s; }
+  .window:hover .resize-handle svg { opacity: 0.55; }
+
+  /* ── SHARED ATOMS ── */
+  .section-label { font-family: var(--font-mono); font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .btn { font-family: var(--font-mono); font-size: 10.5px; padding: 7px 14px; border-radius: var(--radius-sm); border: 1px solid transparent; cursor: pointer; transition: all .2s cubic-bezier(.34,1.56,.64,1); font-weight: 700; letter-spacing: .2px; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--text); color: #fff; box-shadow: 0 2px 7px var(--shadow); }
+  .btn-primary:hover { box-shadow: 0 5px 18px var(--shadow-deep); }
+  .btn-outline { background: transparent; color: var(--text); border-color: var(--border); }
+  .btn-outline:hover { background: var(--win2); border-color: var(--text); }
+  .tag { font-family: var(--font-mono); font-size: 9.5px; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--border); background: var(--win2); color: var(--text-muted); transition: all .2s; }
+  .tag:hover, .tag.hi { background: var(--green-pale); border-color: var(--green-light); color: var(--green); }
+
+  /* ══════════════ HERO ══════════════ */
+  #win-hero { width: 380px; top: 48px; left: 50px; }
+  .hero-body { padding: 20px 18px; }
+  .hero-avatar { width: 58px; height: 58px; border-radius: 15px; background: linear-gradient(135deg,var(--green),var(--green-light)); display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 12px; box-shadow: 0 3px 14px rgba(107,158,120,0.28); animation: float 3.2s ease-in-out infinite; }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  .hero-name { font-family: var(--font-display); font-size: 26px; font-weight: 800; letter-spacing: -0.8px; line-height: 1; color: var(--text); margin-bottom: 4px; }
+  .hero-role { font-family: var(--font-mono); font-size: 11px; color: var(--green); margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(107,158,120,0.4); } 70% { box-shadow: 0 0 0 5px rgba(107,158,120,0); } 100% { box-shadow: 0 0 0 0 rgba(107,158,120,0); } }
+  .hero-bio { font-size: 12.5px; line-height: 1.65; color: var(--text-muted); margin-bottom: 14px; }
+  .hero-bio strong { color: var(--text); font-weight: 500; }
+  .hero-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+  .hero-actions { display: flex; gap: 7px; }
+
+  /* ══════════════ EDUVAULT ══════════════ */
+  #win-eduvault { width: 456px; top: 48px; left: 460px; }
+  .project-header { padding: 18px 18px 0; display: flex; align-items: flex-start; gap: 12px; }
+  .project-icon-big { width: 46px; height: 46px; border-radius: 12px; background: linear-gradient(135deg,#6B9E78,#4A8059); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; box-shadow: 0 3px 10px rgba(74,128,89,0.28); }
+  .project-meta { flex: 1; }
+  .project-badge { display: inline-block; font-family: var(--font-mono); font-size: 8.5px; font-weight: 700; background: var(--yellow-pale); color: #8B6F00; border: 1px solid var(--yellow); padding: 1px 7px; border-radius: 20px; margin-bottom: 4px; letter-spacing: .5px; text-transform: uppercase; }
+  .project-name { font-family: var(--font-display); font-size: 21px; font-weight: 800; letter-spacing: -.6px; line-height: 1; color: var(--text); }
+  .project-tagline { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 3px; }
+  .project-body { padding: 14px 18px; }
+  .project-preview { width: 100%; height: 140px; background: linear-gradient(135deg,#1E1C18 0%,#2D3B2E 50%,#1A2E1E 100%); border-radius: var(--radius); margin-bottom: 13px; overflow: hidden; position: relative; border: 1px solid rgba(107,158,120,0.28); }
+  .preview-code { position: absolute; inset: 0; padding: 11px 14px; font-family: var(--font-mono); font-size: 9.5px; line-height: 1.75; overflow: hidden; }
+  .code-line { display: flex; gap: 9px; opacity: 0.8; }
+  .code-ln { color: #555; min-width: 12px; }
+  .kw { color: #6B9E78; } .fn { color: #E8C84A; } .str { color: #9ECFB0; } .cm { color: #4A6B52; } .pn { color: #C8B89A; }
+  .preview-badge { position: absolute; top: 8px; right: 8px; background: rgba(107,158,120,0.2); border: 1px solid rgba(107,158,120,0.4); color: #9ECFB0; font-family: var(--font-mono); font-size: 8px; padding: 2px 7px; border-radius: 20px; }
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 13px; }
+  .feature-card { padding: 9px 10px; border-radius: var(--radius-sm); background: var(--win2); border: 1px solid var(--border-light); transition: all .2s; }
+  .feature-card:hover { border-color: var(--green-light); background: var(--green-pale); transform: translateY(-1px); box-shadow: 0 3px 10px rgba(107,158,120,0.14); }
+  .feature-icon { font-size: 15px; margin-bottom: 4px; }
+  .feature-title { font-size: 11px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .feature-desc { font-size: 10px; color: var(--text-muted); line-height: 1.5; }
+  .tech-stack { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 13px; }
+  .tech-chip { font-family: var(--font-mono); font-size: 9.5px; padding: 2px 8px; border-radius: 20px; background: var(--win2); border: 1px solid var(--border); color: var(--text-muted); }
+  .tech-chip.primary { background: var(--green-pale); border-color: var(--green-light); color: var(--green); }
+  .project-links { display: flex; gap: 7px; }
+
+  /* ══════════════ SKILLS ══════════════ */
+  #win-skills { width: 258px; top: 48px; right: 16px; }
+  .skills-body { padding: 13px; }
+  .skill-category { margin-bottom: 13px; }
+  .skill-cat-label { font-family: var(--font-mono); font-size: 8.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 7px; display: flex; align-items: center; gap: 5px; }
+  .skill-cat-label::after { content: ''; flex: 1; height: 1px; background: var(--border-light); }
+  .skill-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .skill-icon { font-size: 12px; width: 18px; text-align: center; }
+  .skill-name { font-size: 11px; color: var(--text); flex: 1; }
+  .skill-bar { flex: 1; height: 3px; background: var(--border-light); border-radius: 2px; overflow: hidden; }
+  .skill-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg,var(--green),var(--green-light)); width: 0; transition: width 0.85s cubic-bezier(.34,1.56,.64,1); }
+  .skill-pct { font-family: var(--font-mono); font-size: 8.5px; color: var(--text-muted); width: 24px; text-align: right; }
+
+  /* ══════════════ EXPERIENCE ══════════════ */
+  #win-experience { width: 370px; top: 350px; left: 50px; }
+  .exp-body { padding: 14px 18px; }
+  .exp-item { display: flex; gap: 11px; margin-bottom: 14px; position: relative; }
+  .exp-item::before { content: ''; position: absolute; left: 13px; top: 28px; bottom: -8px; width: 1px; background: var(--border-light); }
+  .exp-item:last-child::before { display: none; }
+  .exp-dot { width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; background: var(--win2); border: 1px solid var(--border-light); position: relative; z-index: 1; }
+  .exp-dot.active { background: var(--green-pale); border-color: var(--green-light); }
+  .exp-content { flex: 1; }
+  .exp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1px; }
+  .exp-role { font-size: 12px; font-weight: 500; color: var(--text); }
+  .exp-date { font-family: var(--font-mono); font-size: 9px; color: var(--text-muted); }
+  .exp-company { font-family: var(--font-mono); font-size: 10px; color: var(--green); margin-bottom: 4px; }
+  .exp-desc { font-size: 11px; color: var(--text-muted); line-height: 1.55; }
+
+  /* ══════════════ PROJECTS ══════════════ */
+  #win-projects { width: 420px; top: 350px; left: 450px; }
+  .projects-body { padding: 13px; }
+  .project-list-item { display: flex; gap: 10px; padding: 10px; border-radius: var(--radius-sm); cursor: pointer; border: 1px solid transparent; transition: all .2s; margin-bottom: 6px; }
+  .project-list-item:hover { background: var(--win2); border-color: var(--border-light); transform: translateX(2px); }
+  .proj-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .proj-info { flex: 1; }
+  .proj-name { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+  .proj-desc { font-size: 10.5px; color: var(--text-muted); line-height: 1.5; }
+  .proj-tags { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+  .proj-tag { font-family: var(--font-mono); font-size: 8.5px; padding: 1px 6px; border-radius: 20px; background: var(--win2); border: 1px solid var(--border); color: var(--text-muted); }
+  .proj-arrow { color: var(--text-muted); font-size: 13px; align-self: center; transition: transform .2s; }
+  .project-list-item:hover .proj-arrow { transform: translateX(2px); color: var(--green); }
+
+  /* ══════════════ CREATIVE WINDOW ══════════════ */
+  #win-creative { width: 400px; top: 48px; left: 50%; display: none; z-index: 94; }
+  .creative-tabs { display: flex; padding: 10px 14px 0; gap: 4px; background: var(--win2); border-bottom: 1px solid var(--border-light); }
+  .ctab {
+    font-family: var(--font-mono); font-size: 9.5px; font-weight: 700;
+    padding: 6px 12px; border-radius: 7px 7px 0 0; cursor: pointer;
+    color: var(--text-muted); border: 1px solid transparent;
+    border-bottom: none; transition: all .2s; margin-bottom: -1px;
+    position: relative;
+  }
+  .ctab:hover { color: var(--text); background: rgba(255,255,255,0.4); }
+  .ctab.active { background: var(--win); border-color: var(--border-light); color: var(--text); }
+  .ctab-icon { margin-right: 5px; }
+  .creative-panel { display: none; padding: 14px; }
+  .creative-panel.active { display: block; }
+
+  /* Gallery grid */
+  .gallery-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; margin-bottom: 12px; }
+  .gallery-item {
+    aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden;
+    position: relative; cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .gallery-item:hover { transform: scale(1.04); box-shadow: 0 6px 18px var(--shadow-deep); z-index: 2; }
+  .gallery-item .gi-bg { position: absolute; inset: 0; }
+  .gallery-item .gi-overlay {
+    position: absolute; inset: 0; background: rgba(30,28,24,0); display: flex; flex-direction: column;
+    align-items: flex-start; justify-content: flex-end; padding: 8px;
+    transition: background .2s;
+  }
+  .gallery-item:hover .gi-overlay { background: rgba(30,28,24,0.46); }
+  .gi-label { font-family: var(--font-mono); font-size: 8.5px; color: #fff; opacity: 0; transform: translateY(4px); transition: all .2s; font-weight: 700; }
+  .gallery-item:hover .gi-label { opacity: 1; transform: translateY(0); }
+  .gi-tag { font-size: 7.5px; font-family: var(--font-mono); color: rgba(255,255,255,0.7); margin-top: 1px; opacity: 0; transition: all .25s .05s; }
+  .gallery-item:hover .gi-tag { opacity: 1; }
+
+  /* wide item */
+  .gallery-item.wide { grid-column: span 2; aspect-ratio: 2/1; }
+
+  /* Creative tools */
+  .creative-tools { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 11px; }
+  .ctool {
+    display: flex; align-items: center; gap: 5px; padding: 4px 9px;
+    border-radius: 20px; border: 1px solid var(--border-light);
+    background: var(--win2); font-size: 10px; color: var(--text-muted);
+    transition: all .2s; cursor: default;
+  }
+  .ctool:hover { transform: translateY(-1px); box-shadow: 0 3px 8px var(--shadow); }
+  .ctool .ct-icon { font-size: 12px; }
+  .ctool.figma:hover { background: #F5E9FF; border-color: #A855F7; color: #7C3AED; }
+  .ctool.ps:hover    { background: #E0EEFF; border-color: #3B82F6; color: #1D4ED8; }
+  .ctool.ai:hover    { background: #FFF3E0; border-color: #F97316; color: #C2410C; }
+  .ctool.lr:hover    { background: #EEF2FF; border-color: #6366F1; color: #4338CA; }
+  .ctool.pr:hover    { background: #F5F3FF; border-color: #8B5CF6; color: #6D28D9; }
+  .ctool.da:hover    { background: #FEF3C7; border-color: #F59E0B; color: #B45309; }
+  .ctool.ae:hover    { background: #EEF2FF; border-color: #818CF8; color: #4F46E5; }
+  .ctool.ca:hover    { background: #FFF1F2; border-color: #FB7185; color: #BE123C; }
+
+  .creative-desc { font-size: 11.5px; color: var(--text-muted); line-height: 1.6; margin-bottom: 11px; }
+  .creative-desc strong { color: var(--text); font-weight: 500; }
+
+  .creative-stat-row { display: flex; gap: 8px; margin-bottom: 4px; }
+  .cstat { flex: 1; padding: 9px 10px; background: var(--win2); border: 1px solid var(--border-light); border-radius: var(--radius-sm); text-align: center; }
+  .cstat-num { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--text); line-height: 1; }
+  .cstat-label { font-family: var(--font-mono); font-size: 8.5px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; }
+
+  /* Film-specific styles */
+  .film-reel {
+    width: 100%; height: 80px; background: #1E1C18;
+    border-radius: var(--radius-sm); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 0; overflow: hidden;
+    border: 1px solid #333;
+  }
+  .reel-hole { width: 10px; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; padding: 3px 0; flex-shrink: 0; }
+  .reel-dot { width: 5px; height: 5px; border-radius: 1px; background: #333; }
+  .reel-frames { flex: 1; display: flex; height: 100%; gap: 2px; padding: 6px 0; overflow: hidden; }
+  .reel-frame { flex-shrink: 0; width: 52px; height: 100%; border-radius: 3px; position: relative; overflow: hidden; }
+
+  /* ══════════════ CONTACT ══════════════ */
+  #win-contact { width: 340px; top: 110px; left: 50%; transform: translateX(-50%); display: none; }
+  .contact-body { padding: 16px; }
+  .contact-intro { font-size: 12px; color: var(--text-muted); line-height: 1.65; margin-bottom: 14px; }
+  .contact-links { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .contact-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--win2); border: 1px solid var(--border-light); cursor: pointer; text-decoration: none; color: var(--text); transition: all .2s; }
+  .contact-link:hover { border-color: var(--green-light); background: var(--green-pale); transform: translateX(2px); }
+  .contact-link-icon { font-size: 16px; width: 24px; text-align: center; }
+  .contact-link-text { flex: 1; }
+  .contact-link-label { font-size: 11.5px; font-weight: 500; }
+  .contact-link-sub { font-family: var(--font-mono); font-size: 9.5px; color: var(--text-muted); }
+  .contact-link-arr { color: var(--text-muted); font-size: 11px; transition: transform .2s; }
+  .contact-link:hover .contact-link-arr { transform: translateX(2px); color: var(--green); }
+  .contact-form input, .contact-form textarea { width: 100%; padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--win); font-family: var(--font-body); font-size: 12px; color: var(--text); outline: none; transition: border-color .2s; resize: vertical; }
+  .contact-form input:focus, .contact-form textarea:focus { border-color: var(--green); }
+  .contact-form input::placeholder, .contact-form textarea::placeholder { color: var(--text-muted); }
+  .contact-form .form-row { display: flex; gap: 7px; }
+  .contact-form .form-group { flex: 1; margin-bottom: 7px; }
+  .contact-form label { font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .4px; display: block; margin-bottom: 3px; }
+  .qlabel { margin-bottom: 10px; font-family: var(--font-mono); font-size: 9.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+  /* ── NOTIFICATION ── */
+  .notification { position: fixed; top: 40px; right: 14px; background: var(--win); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; box-shadow: 0 7px 22px var(--shadow); display: flex; gap: 9px; align-items: flex-start; z-index: 99999; min-width: 240px; max-width: 290px; animation: notifSlide .35s cubic-bezier(.34,1.56,.64,1); transition: opacity .3s, transform .3s; }
+  .notification.hiding { opacity: 0; transform: translateX(18px); }
+  @keyframes notifSlide { from { opacity:0; transform:translateX(18px); } }
+  .notif-icon { font-size: 18px; flex-shrink: 0; }
+  .notif-title { font-size: 11.5px; font-weight: 500; color: var(--text); margin-bottom: 1px; }
+  .notif-body { font-size: 10.5px; color: var(--text-muted); }
+
+  /* ── WALLPAPER ── */
+  .ww { position: fixed; pointer-events: none; font-family: var(--font-mono); color: var(--border); line-height: 1.8; }
+  #ww-tr { top: 46px; right: 14px; text-align: right; font-size: 9.5px; }
+  #ww-bl { bottom: 78px; left: 14px; font-size: 8.5px; opacity: 0.55; }
+
+  /* ── BOOT ── */
+  #boot { position: fixed; inset: 0; z-index: 99999; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; transition: opacity .5s, visibility .5s; }
+  #boot.hidden { opacity: 0; visibility: hidden; }
+  .boot-logo { font-family: var(--font-display); font-size: 44px; font-weight: 800; letter-spacing: -2px; color: var(--text); }
+  .boot-logo span { color: var(--green); }
+  .boot-bar { width: 140px; height: 2px; background: var(--border-light); border-radius: 2px; overflow: hidden; }
+  .boot-fill { height: 100%; background: var(--green); border-radius: 2px; animation: bootFill 1.2s ease-in-out forwards; }
+  @keyframes bootFill { from { width:0; } to { width:100%; } }
+  .boot-text { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
+
+  /* ── MOBILE ── */
+  @media (max-width: 768px) {
+    html, body { overflow-y: auto; overflow-x: hidden; }
+    #desktop { position: relative; height: auto; overflow: visible; padding: 44px 10px 74px; display: flex; flex-direction: column; gap: 13px; }
+    .window { position: relative !important; top: auto !important; left: auto !important; right: auto !important; transform: none !important; width: 100% !important; display: block !important; }
+    .window.minimized { display: none !important; }
+    #win-contact { transform: none; }
+    .wallpaper-widget, .ww { display: none; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .gallery-grid { grid-template-columns: repeat(3,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Boot -->
+<div id="boot">
+  <div class="boot-logo">Dipto<span>.</span>dev</div>
+  <div class="boot-bar"><div class="boot-fill"></div></div>
+  <div class="boot-text">initializing workspace...</div>
+</div>
+
+<div id="desktop">
+
+  <!-- Wallpaper widgets -->
+  <div class="ww" id="ww-tr">
+    <div id="ww-time" style="font-size:26px;color:var(--text-muted);font-weight:700;font-family:var(--font-display)"></div>
+    <div id="ww-date"></div>
+  </div>
+  <div class="ww" id="ww-bl">
+    <div>sys · portfolio_v3.0</div>
+    <div>node · 20.11.0</div>
+    <div>next · 14.2.3</div>
+  </div>
+
+  <!-- Menubar -->
+  <div id="menubar">
+    <div class="brand">Dipto.dev</div>
+    <div class="menu-items">
+      <span onclick="openWindow('win-hero');focusWindow('win-hero')">Profile</span>
+      <span onclick="openWindow('win-eduvault');focusWindow('win-eduvault')">EduVault</span>
+      <span onclick="openWindow('win-skills');focusWindow('win-skills')">Skills</span>
+      <span onclick="openWindow('win-creative');focusWindow('win-creative')">Creative</span>
+      <span onclick="openWindow('win-contact');focusWindow('win-contact')">Contact</span>
+    </div>
+    <div id="menubar-time"></div>
+  </div>
+
+  <!-- ══ HERO ══ -->
+  <div class="window opening" id="win-hero" style="z-index:100">
+    <div class="win-ring"></div>
+    <div class="titlebar" onmousedown="startDrag(event,'win-hero')">
+      <div class="traffic-lights">
+        <div class="tl tl-close" onclick="closeWindow('win-hero')"></div>
+        <div class="tl tl-min"   onclick="minimizeWindow('win-hero')"></div>
+        <div class="tl tl-max"   onclick="maximizeWindow('win-hero')"></div>
+      </div>
+      <div class="titlebar-title">✦ Dipto-Thakur — profile</div>
+      <div style="width:33px"></div>
+    </div>
+    <div class="win-body">
+      <div class="hero-body">
+        <div class="hero-avatar">👨‍💻</div>
+        <div class="hero-name">Dipto Thakur</div>
+        <div class="hero-role"><div class="status-dot"></div>Full-Stack Developer · Open to work</div>
+        <div class="hero-bio">
+          I build <strong>scalable web products</strong> that blur the line between utility and delight. Obsessed with clean architecture, thoughtful UX, and systems that feel alive.<br><br>
+          Currently crafting <strong>EduVault</strong> — a next-gen student learning platform. Also a <strong>creative</strong> at heart — graphic design, photography &amp; filmmaking.
+        </div>
+        <div class="hero-tags">
+          <span class="tag hi">Next.js</span>
+          <span class="tag hi">TypeScript</span>
+          <span class="tag hi">React</span>
+          <span class="tag">Node.js</span>
+          <span class="tag">PostgreSQL</span>
+          <span class="tag">Firebase</span>
+          <span class="tag">Tailwind</span>
+          <span class="tag">Figma</span>
+        </div>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="openWindow('win-eduvault');focusWindow('win-eduvault')">View EduVault →</button>
+          <button class="btn btn-outline" onclick="openWindow('win-creative');focusWindow('win-creative')">Creative ✦</button>
+          <button class="btn btn-outline" onclick="openWindow('win-contact');focusWindow('win-contact')">Contact</button>
+        </div>
+      </div>
+    </div>
+    <div class="resize-handle" onmousedown="startResize(event,'win-hero')">
+      <svg width="9" height="9" viewBox="0 0 10 10"><path d="M10 0L10 10L0 10" fill="none" stroke="var(--text-muted)" stroke-width="1.5"/><path d="M10 5L10 10L5 10" fill="none" stroke="var(--text-muted)" stroke-width="1.5"/></svg>
+    </div>
+  </div>
+
+  <!-- ══ EDUVAULT ══ -->
+  <div class="window opening" id="win-eduvault" style="z-index:99;animation-delay:.14s">
+    <div class="win-ring"></div>
+    <div class="titlebar" onmousedown="startDrag(event,'win-eduvault')">
+      <div class="traffic-lights">
+        <div class="tl tl-close" onclick="closeWindow('win-eduvault')"></div>
+        <div class="tl tl-min"   onclick="minimizeWindow('win-eduvault')"></div>
+        <div class="tl tl-max"   onclick="maximizeWindow('win-eduvault')"></div>
+      </div>
+      <div class="titlebar-title">📚 EduVault — featured project</div>
+      <div style="width:33px"></div>
+    </div>
+    <div class="win-body">
+      <div class="project-header">
+        <div class="project-icon-big">🏛️</div>
+        <div class="project-meta">
+          <div class="project-badge">✦ Featured Project</div>
+          <div class="project-name">EduVault</div>
+          <div class="project-tagline">// student learning platform · v2.4.0</div>
+        </div>
+      </div>
+      <div class="project-body">
+        <div class="project-preview">
+          <div class="preview-code">
+            <div class="code-line"><span class="code-ln">1</span><span class="cm">// EduVault · AI-powered study engine</span></div>
+            <div class="code-line"><span class="code-ln">2</span></div>
+            <div class="code-line"><span class="code-ln">3</span><span class="kw">import</span> <span class="pn">{ createVault }</span> <span class="kw">from</span> <span class="str">'@eduvault/core'</span></div>
+            <div class="code-line"><span class="code-ln">4</span><span class="kw">import</span> <span class="pn">{ useAdaptiveLearning }</span> <span class="kw">from</span> <span class="str">'@eduvault/ai'</span></div>
+            <div class="code-line"><span class="code-ln">5</span></div>
+            <div class="code-line"><span class="code-ln">6</span><span class="kw">export const</span> <span class="fn">StudySession</span> <span class="pn">= async (</span><span class="str">userId</span><span class="pn">) => {</span></div>
+            <div class="code-line"><span class="code-ln">7</span>&nbsp;&nbsp;<span class="kw">const</span> vault <span class="pn">=</span> <span class="kw">await</span> <span class="fn">createVault</span><span class="pn">({ userId })</span></div>
+            <div class="code-line"><span class="code-ln">8</span>&nbsp;&nbsp;<span class="kw">return</span> <span class="fn">useAdaptiveLearning</span><span class="pn">(vault).</span><span class="fn">optimize</span><span class="pn">()</span></div>
+            <div class="code-line"><span class="code-ln">9</span><span class="pn">}</span></div>
+          </div>
+          <div class="preview-badge">● LIVE</div>
+        </div>
+        <div class="section-label">Core Features</div>
+        <div class="feature-grid">
+          <div class="feature-card"><div class="feature-icon">🧠</div><div class="feature-title">Adaptive Learning</div><div class="feature-desc">AI-powered paths that adjust to each student's pace.</div></div>
+          <div class="feature-card"><div class="feature-icon">🗃️</div><div class="feature-title">Smart Vaults</div><div class="feature-desc">Tagged resource libraries with version history.</div></div>
+          <div class="feature-card"><div class="feature-icon">📊</div><div class="feature-title">Progress Analytics</div><div class="feature-desc">Real-time dashboards for mastery & streaks.</div></div>
+          <div class="feature-card"><div class="feature-icon">🤝</div><div class="feature-title">Collaborative Study</div><div class="feature-desc">Shared vaults, live annotation & group quizzes.</div></div>
+        </div>
+        <div class="section-label">Tech Stack</div>
+        <div class="tech-stack">
+          <span class="tech-chip primary">Next.js 14</span><span class="tech-chip primary">TypeScript</span><span class="tech-chip primary">Firebase</span>
+          <span class="tech-chip">PostgreSQL</span><span class="tech-chip">Prisma ORM</span><span class="tech-chip">OpenAI API</span>
+          <span class="tech-chip">Tailwind CSS</span><span class="tech-chip">Vercel</span>
+        </div>
+        <div class="project-links">
+          <button class="btn btn-primary" onclick="showNotif('🚀','EduVault Demo','Live preview launching soon...')">Live Demo →</button>
+          <button class="btn btn-outline" onclick="showNotif('🐙','GitHub Repo','Opening repository...')">GitHub ↗</button>
+          <button class="btn btn-outline" onclick="showNotif('📄','Case Study','Loading case study...')">Case Study</button>
+        </div>
+      </div>
+    </div>
+    <div class="resize-handle" onmousedown="startResize(event,'win-eduvault')">
+      <svg width="9" height="9" viewBox="0 0 10 10"><path d="M10 0L10 10L0 10" fill="none" stroke="var(--text-muted)" stroke-width="1.5"/><path d="M10 5L10 10L5 10" fill="none" stroke="var(--text-muted)" stroke-width="1.5"/></svg>
+    </div>
+  </div>
+
+  <!-- ══ SKILLS ══ -->
+  <div class="window opening" id="win-skills" style="z-index:98;animation-delay:.24s">
+    <div class="win-ring"></div>
+    <div class="titlebar" onmousedown="startDrag(event,'win-skills')">
+      <div class="traffic-lights">
+        <div class="tl tl-close" onclick="closeWindow('win-skills')"></div>
+        <div class="tl tl-min"   onclick="minimizeWindow('win-skills')"></div>
+        <div class="tl tl-max"   onclick="maximizeWindow('win-skills')"></div>
+      </div>
+      <div class="titlebar-title">⚡ skills.json</div>
+      <div style="width:33px"></div>
+    </div>
+    <div class="win-body skills-body">
+      <div class="skill-category">
+        <div class="skill-cat-label">Frontend</div>
+        <div class="skill-item"><span class="skill-icon">⚛️</span><span class="skill-name">React / Next.js</span><div class="skill-bar"><div class="skill-fill" data-pct="95"></div></div><span class="skill-pct">95%</span></div>
+        <div class="skill-item"><span class="skill-icon">📘</span><span class="skill-name">TypeScript</span><div class="skill-bar"><div class="skill-fill" data-pct="90"></div></div><span class="skill-pct">90%</span></div>
+        <div class="skill-item"><span class="skill-icon">🎨</span><span class="skill-name">Tailwind / CSS</span><div class="skill-bar"><div class="skill-fill" data-pct="92"></div></div><span class="skill-pct">92%</span></div>
+        <div class="skill-item"><span class="skill-icon">✨</span><span class="skill-name">Framer Motion</span><div class="skill-bar"><div class="skill-fill" data-pct="82"></div></div><span class="skill-pct">82%</span></div>
+      </div>
+      <div class="skill-category">
+        <div class="skill-cat-label">Backend</div>
+        <div class="skill-item"><span class="skill-icon">🟢</span><span class="skill-name">Node.js</span><div class="skill-bar"><div class="skill-fill" data-pct="85"></div></div><span class="skill-pct">85%</span></div>
+        <div class="skill-item"><span class="skill-icon">🐘</span><span class="skill-name">PostgreSQL</span><div class="skill-bar"><div class="skill-fill" data-pct="78"></div></div><span class="skill-pct">78%</span></div>
+        <div class="skill-item"><span class="skill-icon">🔥</span><span class="skill-name">Firebase</span><div class="skill-bar"><div class="skill-fill" data-pct="88"></div></div><span class="skill-pct">88%</span></div>
+      </div>
+      <div class="skill-category">
+        <div class="skill-cat-label">Tools</div>
+        <div class="skill-item"><span class="skill-icon">🐙</span><span class="skill-name">Git / GitHub</span><div class="skill-bar"><div class="skill-fill" data-pct="93"></div></div><span class="skill-pct">93%</span></div>
+        <div class="skill-item"><span class="skill-icon">▲</span><span class="skill-name">Vercel / CI-CD</span><div class="skill-bar"><div class="skill-fill" data-pct="80"></div></div><span class="skill-pct">80%</span></div>
+        <div class="skill-item"><span class="skill-icon">🐋</span><span class="skill-name">Docker</span><div class="skill-bar"><div class="skill-fill" data-pct="70"></div></div><span class="skill-pct">70%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ EXPERIENCE ══ -->
+  <div class="window" id="win-experience" style="z-index:97;opacity:0;transform:scale(0.9) translateY(10px);transition:opacity .38s .58s,transform .38s .58s cubic-bezier(.34,1.56,.64,1)">
+    <div class="win-ring"></div>
+    <div class="titlebar" onmousedown="startDrag(event,'win-experience')">
+      <div class="traffic-lights">
+        <div class="tl tl-close" onclick="closeWindow('win-experience')"></div>
+        <div class="tl tl-min"   onclick="minimizeWindow('win-experience')"></div>
+        <div class="tl tl-max"   onclick="maximizeWindow('win-experience')"></div>
+      </div>
+      <div class="titlebar-title">💼 experience.md</div>
+      <div style="width:33px"></div>
+    </div>
+    <div class="win-body exp-body">
+      <div class="exp-item">
+        <div class="exp-dot active">🚀</div>
+        <div class="exp-content">
+          <div class="exp-header"><div class="exp-role">Lead Frontend Developer</div><div class="exp-date">2023 — Now</div></div>
+          <div class="exp-company">// BuildStack Technologies</div>
+          <div class="exp-desc">Architected a multi-tenant SaaS platform for 50k+ users. Led team of 4, introduced design system & CI/CD that cut deploy time by 60%.</div>
+        </div>
+      </div>
+      <div class="exp-item">
+        <div class="exp-dot">💻</div>
+        <div class="exp-content">
+          <div class="exp-header"><div class="exp-role">Full-Stack Engineer</div><div class="exp-date">2021 — 2023</div></div>
+          <div class="exp-company">// Nexus Digital Agency</div>
+          <div class="exp-desc">Built 12+ client projects in React / Next.js. Specialized in performance — sub-1.5s LCP across all projects.</div>
+        </div>
+      </div>
+      <div class="exp-item">
+        <div class="exp-dot">🌱</div>
+        <div class="exp-content">
+          <div class="exp-header"><div class="exp-role">Junior Web Developer</div><div class="exp-date">2020 — 2021</div></div>
+          <div class="exp-company">// Freelance</div>
+          <div class="exp-desc">Custom React & WordPress sites. Built first full-stack app: a restaurant booking system with real-time availability.</div>
+        </div>
+      </div>
+      <div class="exp-item">
+        <div class="exp-dot">🎓</div>
+        <div class="exp-content">
+          <div class="exp-header"><div class="exp-role">B.Sc. Computer Science</div><div class="exp-date">2017 — 2021</div></div>
+          <div class="exp-company">// University of Technology</div>
+          <div class="exp-desc">First-class honors. Dissertation: "Adaptive Learning Systems in EdTech." Founding member of the Web Dev Society.</div>
+        </div>
+      </div>
+    </div>
+    <div class="resize-handle" onmousedown="startResize(event,'win-experience')">
+      <svg width="9" height="9" viewBox="0 0 10 10"><path d="M10 0L10 10L0 10" fill="none" stroke="var(--text-muted)" stroke-width="1.5"/><path d="M10 5L10 10L5 10" fill="none" stroke="var(--text-muted)" stroke-width="1.5"/></svg>
+    </div>
+  </div>
+
+  <!-- ══ PROJECTS ══ -->
+  <div class="window" id="win-projects" style="z-index:96;opacity:0;transform:scale(0.9) translateY(10px);transition:opacity .38s .72s,transform .38s .72s cubic-bezier(.34,1.56,.64,1)">
+    <div class="win-ring"></div>
+    <div class="titlebar" onmousedown="startDrag(event,'win-projects')">
+      <div class="traffic-lights">
+        <div class="tl tl-close" onclick="closeWindow('win-projects')"></div>
+        <div class="tl tl-min"   onclick="minimizeWindow('win-projects')"></div>
+        <div class="tl tl-max"   onclick="maximizeWindow('win-projects')"></div>
+      </div>
+      <div class="titlebar-title">📁 projects / all</div>
+      <div style="width:33px"></div>
+    </div>
+    <div class="win-body projects-body">
+      <div class="project-list-item" onclick="openWindow('win-eduvault');focusWindow('win-eduvault')">
+        <div class="proj-icon" style="background:var(--green-pale)">🏛️</div>
+        <div class="proj-info">
+          <div class="proj-name">EduVault <span style="font-size:9px;color:var(--green);font-family:var(--font-mono)">★ Featured</span></div>
+          <div class="proj-desc">AI-powered student learning platform with adaptive paths and collaborative vaults.</div>
+          <div class="proj-tags"><span class="proj-tag">Next.js</span><span class="proj-tag">Firebase</span><span class="proj-tag">OpenAI</span></div>
+        </div>
+        <div class="proj-arrow">›</div>
+      </div>
+      <div class="project-list-item" onclick="showNotif('📊','FlowBoard','Fetching project details...')">
+        <div class="proj-icon" style="background:var(--yellow-pale)">📊</div>
+        <div class="proj-info">
+          <div class="proj-name">FlowBoard</div>
+          <div class="proj-desc">Real-time Kanban & Gantt project management with team analytics.</div>
+          <div class="proj-tags"><span class="proj-tag">React</span><span class="proj-tag">WebSockets</span><span class="proj-tag">PostgreSQL</span></div>
+        </div>
+        <div class="proj-arrow">›</div>
+      </div>
+      <div class="project-list-item" onclick="showNotif('🛍️','Orbit Store','Fetching project details...')">
+        <div class="proj-icon" style="background:#E8D4F0">🛍️</div>
+        <div class="proj-info">
+          <div class="proj-name">Orbit Store</div>
+          <div class="proj-desc">Headless e-commerce with 3D product viewer, instant search & Stripe.</div>
+          <div class="proj-tags"><span class="proj-tag">Next.js</span><span class="proj-tag">Three.js</span><span class="proj-tag">Stripe</span></div>
+        </div>
+        <div class="proj-arrow">›</div>
+      </div>
+      <div class="project-list-item" onclick="showNotif('🌤️','Skycast','Fetching project details...')">
+        <div class="proj-icon" style="background:var(--blue-pale)">🌤️</div>
+        <div class="proj-info">
+          <div class="proj-name">Skycast</div>
+          <div class="proj-desc">Minimalist weather dashboard with animated weather art & PWA support.</div>
+          <div class="proj-tags"><span class="proj-tag">React</span><span class="proj-tag">PWA</span><span class="proj-tag">WeatherAPI</span></div>
+        </div>
+        <div class="proj-arrow">›</div>
+      </div>
+    </div>
+    <div class="resize-handle" onmousedown="startResize(event,'win-projects')">
+      <svg width="9" height="9" viewBox="0 0 10 10"><path d="M10 0L10 10L0 10" fill="none" stroke="var(--text-muted)" stroke-width="1.5"/><path d="M10 5L10 10L5 10" fill="none" stroke="var(--text-muted)" stroke-width="1.5"/></svg>
+    </div>
+  </div>
+
+  <!-- ══ CREATIVE STUDIO ══ -->
+  <div class="window" id="win-creative">
+    <div class="win-ring"></div>
+    <div class="titlebar" onmousedown="startDrag(event,'win-creative')">
+      <div class="traffic-lights">
+        <div class="tl tl-close" onclick="closeWindow('win-creative')"></div>
+        <div class="tl tl-min"   onclick="minimizeWindow('win-creative')"></div>
+        <div class="tl tl-max"   onclick="maximizeWindow('win-creative')"></div>
+      </div>
+      <div class="titlebar-title">🎨 creative-studio.app</div>
+      <div style="width:33px"></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="creative-tabs">
+      <div class="ctab active" onclick="switchTab('design')" id="ctab-design"><span class="ctab-icon">🎨</span>Design</div>
+      <div class="ctab" onclick="switchTab('photo')"  id="ctab-photo"><span class="ctab-icon">📷</span>Photo</div>
+      <div class="ctab" onclick="switchTab('film')"   id="ctab-film"><span class="ctab-icon">🎬</span>Film</div>
+    </div>
+
+    <div class="win-body">
+
+      <!-- ── DESIGN TAB ── -->
+      <div class="creative-panel active" id="cpanel-design">
+        <div class="creative-desc">
+          <strong>Visual design & branding</strong> — UI kits, brand identities, posters, and marketing materials. Every pixel intentional, every layout considered.
+        </div>
+        <div class="gallery-grid">
+          <!-- row 1 -->
+          <div class="gallery-item wide">
+            <div class="gi-bg" style="background:linear-gradient(135deg,#2D1B4E,#6B3FA0,#C084FC)"></div>
+            <div class="gi-overlay"><div class="gi-label">EduVault UI Kit</div><div class="gi-tag">Brand Design · 2024</div></div>
+          </div>
+          <div class="gallery-item">
+            <div class="gi-bg" style="background:linear-gradient(160deg,#1A3A2A,#4A8059,#9ECFB0)"></div>
+            <div class="gi-overlay"><div class="gi-label">Logo Suite</div><div class="gi-tag">Identity</div></div>
+          </div>
+          <!-- row 2 -->
+          <div class="gallery-item">
+            <div class="gi-bg" style="background:linear-gradient(135deg,#7C3AED,#EC4899,#F97316)"></div>
+            <div class="gi-overlay"><div class="gi-label">Poster Series</div><div class="gi-tag">Print</div></div>
+          </div>
+          <div class="gallery-item">
+            <div class="gi-bg" style="background:linear-gradient(160deg,#0F172A,#1E3A5F,#3B82F6)"></div>
+            <div class="gi-overlay"><div class="gi-label">Dashboard UI</div><div class="gi-tag">Product Design</div></div>
+          </div>
+          <div class="gallery-item">
+            <div class="gi-bg" style="background:linear-gradient(135deg,#D4847A,#E8C84A,#F5EAB4)"></div>
+            <div class="gi-overlay"><div class="gi-label">Brand Palette</div><div class="gi-tag">Color System</div></div>
+          </div>
+        </div>
+        <div class="section-label">Tools</div>
+        <div class="creative-tools">
+          <div class="ctool figma"><span class="ct-icon">🖌️</span>Figma</div>
+          <div class="ctool ps"><span class="ct-icon">🅿️</span>Photoshop</div>
+          <div class="ctool ai"><span class="ct-icon">🔶</span>Illustrator</div>
+          <div class="ctool ca"><span class="ct-icon">🎪</span>Canva Pro</div>
+        </div>
+        <div class="creative-stat-row">
+          <div class="cstat"><div class="cstat-num">40+</div><div class="cstat-label">Designs</div></div>
+          <div class="cstat"><div class="cstat-num">12</div><div class="cstat-label">Brands</div></div>
+          <div class="cstat"><div class="cstat-num">8</div><div class="cstat-label">UI Kits</div></div>
+        </div>
+      </div>
+
+      <!-- ── PHOTO TAB ── -->
+      <div class="creative-panel" id="cpanel-photo">
+        <div class="creative-desc">
+          <strong>Photography & visual storytelling</strong> — street photography, portraits, architecture, and travel. Shot on Sony A7III &amp; iPhone. Post-processed in Lightroom.
+        </div>
+        <div class="gallery-grid">
+          <div class="gallery-item">
+            <div class="gi-bg" style="background:linear-gradient(160deg,#0F0F0F,#2C2C2C,#555)"></div>
+            <div class="gi-overlay"><div class="gi-label">Street · Dhaka</div><div class="gi-tag">B&W · 2024</div></div>
+          </div>
+          <div class="gallery-item">
+            <div class="gi-bg" style="background:linear-gradient(135deg,#1A2E1A,#4A6B2A,#8B9E5A)"></div>
+            <div class="gi-overlay"><div class="gi-label">Landscape</div><div class="gi-tag">Golden Hour</div></div>
+          </div>
+          <div class="gallery-item">
+            <div class="gi-bg" style="background:linear-gradient(160deg,#2A1A0F,#8B5A2A,#D4A060)"></div>
+            <div class="gi-overlay"><div class="gi-label">Portrait</div><div class="gi-tag">Natural Light</div></div>
+          </div>
+          <div class="gallery-item wide">
+            <div class="gi-bg" style="background:linear-gradient(135deg,#0A1628,#1E3A5F,#7AAAB8,#C8E8F0)"></div>
+            <div class="gi-overlay"><div class="gi-label">Architecture · Blue Hour</div><div class="gi-tag">Long Exposure · 2023</div></div>
+          </div>
+          <div class="gallery-item">
+            <div class="gi-bg" style="background:linear-gradient(160deg,#1A0A2E,#4A1A6E,#9B5FBF)"></div>
+            <div class="gi-overlay"><div class="gi-label">Astrophoto</div><div class="gi-tag">Milky Way</div></div>
+          </div>
+        </div>
+        <div class="section-label">Tools</div>
+        <div class="creative-tools">
+          <div class="ctool lr"><span class="ct-icon">🌅</span>Lightroom</div>
+          <div class="ctool ps"><span class="ct-icon">🅿️</span>Photoshop</div>
+          <div class="ctool" style="--h:#000"><span class="ct-icon">📷</span>Sony A7III</div>
+          <div class="ctool"><span class="ct-icon">📱</span>iPhone 15 Pro</div>
+        </div>
+        <div class="creative-stat-row">
+          <div class="cstat"><div class="cstat-num">2k+</div><div class="cstat-label">Shots</div></div>
+          <div class="cstat"><div class="cstat-num">6</div><div class="cstat-label">Cities</div></div>
+          <div class="cstat"><div class="cstat-num">3</div><div class="cstat-label">Exhibits</div></div>
+        </div>
+      </div>
+
+      <!-- ── FILM TAB ── -->
+      <div class="creative-panel" id="cpanel-film">
+        <div class="creative-desc">
+          <strong>Video editing, filmmaking & motion</strong> — short films, brand reels, cinematic edits, and documentary work. Comfortable behind the camera and in the timeline.
+        </div>
+
+        <!-- Stylized film reel -->
+        <div class="film-reel">
+          <div class="reel-hole"><div class="reel-dot"></div><div class="reel-dot"></div><div class="reel-dot"></div><div class="reel-dot"></div><div class="reel-dot"></div></div>
+          <div class="reel-frames">
+            <div class="reel-frame" style="background:linear-gradient(160deg,#1A0F2E,#4A1A5E,#8B4FB0)"></div>
+            <div class="reel-frame" style="background:linear-gradient(160deg,#0A1A0A,#2A4A2A,#6B9E6B)"></div>
+            <div class="reel-frame" style="background:linear-gradient(160deg,#2E1A0A,#6B3A1A,#C87840)"></div>
+            <div class="reel-frame" style="background:linear-gradient(160deg,#0A1A2E,#1A3A6E,#4A7AB8)"></div>
+            <div class="reel-frame" style="background:linear-gradient(160deg,#1A0A0A,#5A1A1A,#B84040)"></div>
+            <div class="reel-frame" style="background:linear-gradient(160deg,#0F1A0A,#2A4A1A,#78A050)"></div>
+          </div>
+          <div class="reel-hole"><div class="reel-dot"></div><div class="reel-dot"></div><div class="reel-dot"></div><div class="reel-dot"></div><div class="reel-dot"></div></div>
+        </div>
+
+        <div class="gallery-grid">
+          <div class="gallery-item">
+            <div class="gi-bg" style="background:linear-gradient(160deg,#1A0F2E,#4A1A5E,#7B3FA0)"></div>
+            <div class="gi-overlay"><div class="gi-label">Short Film</div><div class="gi-tag">12 min · 2024</div></div>
+          </div>
+          <div class="gallery-item wide">
+            <div class="gi-bg" style="background:linear-gradient(135deg,#0A1A0A,#1E3A1E,#4A7A4A,#78A078)"></div>
+            <div class="gi-overlay"><div class="gi-label">Nature Documentary · Teaser Cut</div><div class="gi-tag">Cinematic · DaVinci</div></div>
+          </div>
+          <div class="gallery-item wide">
+            <div class="gi-bg" style="background:linear-gradient(135deg,#1E0A0A,#4A1A1A,#9B3A3A,#D4705A)"></div>
+            <div class="gi-overlay"><div class="gi-label">Brand Reel · StartupXYZ</div><div class="gi-tag">90s · Premiere Pro</div></div>
+          </div>
+          <div class="gallery-item">
+            <div class="gi-bg" style="background:linear-gradient(160deg,#0A1A2E,#1E3A5F,#3A6B9E)"></div>
+            <div class="gi-overlay"><div class="gi-label">Motion Graphics</div><div class="gi-tag">After Effects</div></div>
+          </div>
+        </div>
+
+        <div class="section-label">Tools</div>
+        <div class="creative-tools">
+          <div class="ctool pr"><span class="ct-icon">🎞️</span>Premiere Pro</div>
+          <div class="ctool da"><span class="ct-icon">🎬</span>DaVinci Resolve</div>
+          <div class="ctool ae"><span class="ct-icon">✨</span>After Effects</div>
+          <div class="ctool"><span class="ct-icon">📹</span>Sony A7III</div>
+        </div>
+        <div class="creative-stat-row">
+          <div class="cstat"><div class="cstat-num">20+</div><div class="cstat-label">Projects</div></div>
+          <div class="cstat"><div class="cstat-num">5</div><div class="cstat-label">Short Films</div></div>
+          <div class="cstat"><div class="cstat-num">3</div><div class="cstat-label">Festivals</div></div>
+        </div>
+      </div>
+
+    </div><!-- /win-body -->
+    <div class="resize-handle" onmousedown="startResize(event,'win-creative')">
+      <svg width="9" height="9" viewBox="0 0 10 10"><path d="M10 0L10 10L0 10" fill="none" stroke="var(--text-muted)" stroke-width="1.5"/><path d="M10 5L10 10L5 10" fill="none" stroke="var(--text-muted)" stroke-width="1.5"/></svg>
+    </div>
+  </div>
+
+  <!-- ══ CONTACT ══ -->
+  <div class="window" id="win-contact">
+    <div class="win-ring"></div>
+    <div class="titlebar" onmousedown="startDrag(event,'win-contact')">
+      <div class="traffic-lights">
+        <div class="tl tl-close" onclick="closeWindow('win-contact')"></div>
+        <div class="tl tl-min"   onclick="minimizeWindow('win-contact')"></div>
+        <div class="tl tl-max"   onclick="maximizeWindow('win-contact')"></div>
+      </div>
+      <div class="titlebar-title">📬 contact.sh</div>
+      <div style="width:33px"></div>
+    </div>
+    <div class="win-body">
+      <div class="contact-body">
+        <div class="contact-intro">I'm currently <strong>open to new opportunities</strong> — full-time roles, freelance projects, or creative collaborations. Let's build something great.</div>
+        <div class="contact-links">
+          <a class="contact-link" href="/cdn-cgi/l/email-protection#cda9a4bdb9a28da8b5aca0bda1a8e3aea2a0">
+            <div class="contact-link-icon">📧</div>
+            <div class="contact-link-text"><div class="contact-link-label">Email</div><div class="contact-link-sub"><span class="__cf_email__" data-cfemail="3f5b564f4b507f5a475e524f535a115c5052">[email&#160;protected]</span></div></div>
+            <div class="contact-link-arr">›</div>
+          </a>
+          <a class="contact-link" href="#" onclick="showNotif('💼','LinkedIn','Opening LinkedIn profile...');return false">
+            <div class="contact-link-icon">💼</div>
+            <div class="contact-link-text"><div class="contact-link-label">LinkedIn</div><div class="contact-link-sub">linkedin.com/in/diptothakur</div></div>
+            <div class="contact-link-arr">›</div>
+          </a>
+          <a class="contact-link" href="#" onclick="showNotif('🐙','GitHub','Opening GitHub profile...');return false">
+            <div class="contact-link-icon">🐙</div>
+            <div class="contact-link-text"><div class="contact-link-label">GitHub</div><div class="contact-link-sub">github.com/diptothakur-exe</div></div>
+            <div class="contact-link-arr">›</div>
+          </a>
+        </div>
+        <div class="qlabel">Quick Message</div>
+        <div class="contact-form">
+          <div class="form-row">
+            <div class="form-group"><label>Name</label><input type="text" placeholder="Your name"></div>
+            <div class="form-group"><label>Email</label><input type="email" placeholder="your@email.com"></div>
+          </div>
+          <div class="form-group"><label>Message</label><textarea rows="3" placeholder="Hey Dipto, I'd love to talk about..."></textarea></div>
+          <button class="btn btn-primary" style="width:100%" onclick="showNotif('✅','Message Sent!','Thanks! I\'ll reply within 24 hours.')">Send Message →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DOCK ══ -->
+  <div id="dock">
+    <div class="dock-item" onclick="openWindow('win-hero');focusWindow('win-hero')">
+      <div class="dock-label">Profile</div>
+      <div class="dock-icon" style="background:linear-gradient(135deg,#6B9E78,#4A8059)">👨‍💻</div>
+      <div class="dock-dot active" id="dot-win-hero"></div>
+    </div>
+    <div class="dock-item" onclick="openWindow('win-eduvault');focusWindow('win-eduvault')">
+      <div class="dock-label">EduVault</div>
+      <div class="dock-icon" style="background:linear-gradient(135deg,#4A8059,#2D5E3A)">🏛️</div>
+      <div class="dock-dot active" id="dot-win-eduvault"></div>
+    </div>
+    <div class="dock-item" onclick="openWindow('win-skills');focusWindow('win-skills')">
+      <div class="dock-label">Skills</div>
+      <div class="dock-icon" style="background:linear-gradient(135deg,#E8C84A,#C8A030)">⚡</div>
+      <div class="dock-dot active" id="dot-win-skills"></div>
+    </div>
+    <div class="dock-item" onclick="openWindow('win-creative');focusWindow('win-creative')">
+      <div class="dock-label">Creative</div>
+      <div class="dock-icon" style="background:linear-gradient(135deg,#C084FC,#7C3AED)">🎨</div>
+      <div class="dock-dot" id="dot-win-creative"></div>
+    </div>
+    <div class="dock-sep"></div>
+    <div class="dock-item" onclick="openWindow('win-experience');focusWindow('win-experience')">
+      <div class="dock-label">Experience</div>
+      <div class="dock-icon" style="background:linear-gradient(135deg,#8B7FAA,#6B5F8A)">💼</div>
+      <div class="dock-dot" id="dot-win-experience"></div>
+    </div>
+    <div class="dock-item" onclick="openWindow('win-projects');focusWindow('win-projects')">
+      <div class="dock-label">Projects</div>
+      <div class="dock-icon" style="background:linear-gradient(135deg,#7AAAB8,#5A8A98)">📁</div>
+      <div class="dock-dot" id="dot-win-projects"></div>
+    </div>
+    <div class="dock-item" onclick="openWindow('win-contact');focusWindow('win-contact')">
+      <div class="dock-label">Contact</div>
+      <div class="dock-icon" style="background:linear-gradient(135deg,#B87A7A,#985A5A)">📬</div>
+      <div class="dock-dot" id="dot-win-contact"></div>
+    </div>
+  </div>
+
+</div><!-- /desktop -->
+
+<script>
+'use strict';
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let zTop = 200;
+let drag = null;
+let rz   = null;
+const notifQueue    = [];
+const NOTIF_LIFETIME = 3600;
+const NOTIF_SPACING  = 10;
+
+/* ════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════ */
+const win      = id => document.getElementById(id);
+const isMobile = ()  => window.innerWidth <= 768;
+
+/* ════════════════════════════════════════
+   FOCUS
+════════════════════════════════════════ */
+function focusWindow(id) {
+  document.querySelectorAll('.window').forEach(w => w.classList.remove('focused'));
+  const el = win(id);
+  if (!el) return;
+  el.style.zIndex = ++zTop;
+  el.classList.add('focused');
+}
+
+/* ════════════════════════════════════════
+   OPEN  — FIX #3 (classList only) + FIX #5 (explicit display block)
+════════════════════════════════════════ */
+function openWindow(id) {
+  const el = win(id);
+  if (!el) return;
+  el.classList.remove('minimized', 'closing');
+  el.style.display      = 'block';   /* FIX #5 — explicit, defeats CSS specificity */
+  el.style.opacity      = '1';
+  el.style.pointerEvents = '';
+  /* FIX #3 — never touch inline transform; CSS class handles minimized state */
+  if (!el.dataset.maximized) el.style.transform = '';
+  el.classList.add('opening');
+  setTimeout(() => el.classList.remove('opening'), 360);
+  focusWindow(id);
+  updateDot(id, true);
+  if (id === 'win-skills') animateSkills();
+}
+
+/* ════════════════════════════════════════
+   CLOSE
+════════════════════════════════════════ */
+function closeWindow(id) {
+  const el = win(id);
+  if (!el) return;
+  el.classList.add('closing');
+  setTimeout(() => { el.style.display = 'none'; el.classList.remove('closing'); }, 240);
+  updateDot(id, false);
+}
+
+/* ════════════════════════════════════════
+   MINIMIZE  — FIX #3 (classList only, no inline style)
+════════════════════════════════════════ */
+function minimizeWindow(id) {
+  const el = win(id);
+  if (!el) return;
+  el.classList.add('minimized');
+  updateDot(id, false);
+}
+
+/* ════════════════════════════════════════
+   MAXIMIZE  — FIX #2 (save only 5 geometric props, not full cssText)
+════════════════════════════════════════ */
+function maximizeWindow(id) {
+  const el = win(id);
+  if (!el) return;
+
+  if (el.dataset.maximized) {
+    const s = JSON.parse(el.dataset.origGeom);
+    el.style.top       = s.top;
+    el.style.left      = s.left;
+    el.style.right     = s.right;
+    el.style.width     = s.width;
+    el.style.transform = s.transform;
+    const b = el.querySelector('.win-body');
+    if (b) b.style.maxHeight = '';
+    delete el.dataset.maximized;
+    delete el.dataset.origGeom;
+  } else {
+    el.dataset.origGeom = JSON.stringify({
+      top: el.style.top, left: el.style.left, right: el.style.right,
+      width: el.style.width, transform: el.style.transform
+    });
+    el.style.top       = '38px';
+    el.style.left      = '14px';
+    el.style.right     = 'auto';
+    el.style.transform = 'none';
+    el.style.width     = (window.innerWidth - 28) + 'px';
+    const b = el.querySelector('.win-body');
+    if (b) b.style.maxHeight = (window.innerHeight - 90) + 'px';
+    el.dataset.maximized = '1';
+  }
+  focusWindow(id);
+}
+
+function updateDot(id, active) {
+  const d = document.getElementById('dot-' + id);
+  if (d) d.classList.toggle('active', active);
+}
+
+/* ════════════════════════════════════════
+   CREATIVE TABS
+════════════════════════════════════════ */
+function switchTab(tab) {
+  document.querySelectorAll('.ctab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.creative-panel').forEach(p => p.classList.remove('active'));
+  const ct = document.getElementById('ctab-' + tab);
+  const cp = document.getElementById('cpanel-' + tab);
+  if (ct) ct.classList.add('active');
+  if (cp) cp.classList.add('active');
+}
+
+/* ════════════════════════════════════════
+   DRAG  — FIX #6 (el.offsetWidth bounds) + FIX #11 (preventDefault)
+════════════════════════════════════════ */
+function startDrag(e, id) {
+  if (isMobile()) return;
+  e.preventDefault();   /* FIX #11 — stops text selection */
+  focusWindow(id);
+  const el = win(id);
+  const r  = el.getBoundingClientRect();
+  drag = { el, ox: e.clientX - r.left, oy: e.clientY - r.top };
+  document.addEventListener('mousemove', onDrag);
+  document.addEventListener('mouseup',   stopDrag);
+}
+
+function onDrag(e) {
+  if (!drag) return;
+  e.preventDefault();
+  /* FIX #6 — clamp uses actual element dimensions */
+  const maxX = window.innerWidth  - drag.el.offsetWidth;
+  const maxY = window.innerHeight - drag.el.offsetHeight;
+  drag.el.style.left      = Math.max(0,  Math.min(e.clientX - drag.ox, maxX)) + 'px';
+  drag.el.style.top       = Math.max(30, Math.min(e.clientY - drag.oy, maxY)) + 'px';
+  drag.el.style.right     = 'auto';
+  drag.el.style.transform = 'none';
+}
+
+function stopDrag() {
+  drag = null;
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('mouseup',   stopDrag);
+}
+
+/* ════════════════════════════════════════
+   RESIZE  — FIX #7 (reset baseline after each move)
+             FIX #13 (dynamic maxHeight)
+             FIX #14 (disabled on mobile)
+════════════════════════════════════════ */
+function startResize(e, id) {
+  if (isMobile()) return;  /* FIX #14 */
+  e.stopPropagation();
+  e.preventDefault();
+  const el = win(id);
+  rz = { el, sx: e.clientX, sy: e.clientY, sw: el.offsetWidth, sh: el.offsetHeight };
+  document.addEventListener('mousemove', onResize);
+  document.addEventListener('mouseup',   stopResize);
+}
+
+function onResize(e) {
+  if (!rz) return;
+  const newW = Math.max(280, rz.sw + (e.clientX - rz.sx));
+  const newH = Math.max(180, rz.sh + (e.clientY - rz.sy));
+  rz.el.style.width  = newW + 'px';
+  rz.el.style.height = newH + 'px';
+  /* FIX #13 — maxHeight tracks actual element size */
+  const b = rz.el.querySelector('.win-body');
+  if (b) b.style.maxHeight = (newH - 48) + 'px';
+  /* FIX #7 — update baseline so drag bounds stay accurate */
+  rz.sw = newW; rz.sh = newH;
+  rz.sx = e.clientX; rz.sy = e.clientY;
+}
+
+function stopResize() {
+  rz = null;
+  document.removeEventListener('mousemove', onResize);
+  document.removeEventListener('mouseup',   stopResize);
+}
+
+/* ════════════════════════════════════════
+   SKILL BARS  — FIX #3 (pure width, no scaleX mismatch)
+════════════════════════════════════════ */
+let skillsAnimated = false;
+function animateSkills() {
+  if (skillsAnimated) return;
+  skillsAnimated = true;
+  setTimeout(() => {
+    document.querySelectorAll('.skill-fill').forEach(f => {
+      f.style.width = (f.dataset.pct || 0) + '%';
+    });
+  }, 100);
+}
+
+/* ════════════════════════════════════════
+   CLOCK
+════════════════════════════════════════ */
+function tick() {
+  const now    = new Date();
+  const t      = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  const days   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const mbt = document.getElementById('menubar-time'); if (mbt) mbt.textContent = t;
+  const wwt = document.getElementById('ww-time');      if (wwt) wwt.textContent = t;
+  const wwd = document.getElementById('ww-date');
+  if (wwd) wwd.textContent = days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate();
+}
+tick();
+setInterval(tick, 1000);
+
+/* ════════════════════════════════════════
+   NOTIFICATIONS  — FIX #9 (proper stacking queue)
+════════════════════════════════════════ */
+function repositionNotifs() {
+  let top = 44;
+  notifQueue.forEach(n => {
+    n.style.top = top + 'px';
+    top += n.offsetHeight + NOTIF_SPACING;
+  });
+}
+
+function dismissNotif(n) {
+  const i = notifQueue.indexOf(n);
+  if (i !== -1) notifQueue.splice(i, 1);
+  n.classList.add('hiding');
+  setTimeout(() => { n.remove(); repositionNotifs(); }, 330);
+}
+
+function showNotif(icon, title, body) {
+  const n = document.createElement('div');
+  n.className = 'notification';
+  n.innerHTML = `<div class="notif-icon">${icon}</div><div><div class="notif-title">${title}</div><div class="notif-body">${body}</div></div>`;
+  n.style.top = '44px';
+  document.body.appendChild(n);
+  notifQueue.push(n);
+  repositionNotifs();
+  n.addEventListener('click', () => dismissNotif(n));
+  setTimeout(() => dismissNotif(n), NOTIF_LIFETIME);
+}
+
+/* ════════════════════════════════════════
+   GLOBAL MOUSEDOWN  — window focus + FIX #10 (click-outside blur)
+   Titlebar drag + Resize handle (replaces fragile inline onmousedown)
+════════════════════════════════════════ */
+document.addEventListener('mousedown', e => {
+  const winEl = e.target.closest('.window');
+
+  /* FIX #10 — clicking bare desktop blurs all windows */
+  if (!winEl) {
+    document.querySelectorAll('.window').forEach(w => w.classList.remove('focused'));
+    return;
+  }
+
+  focusWindow(winEl.id);
+
+  /* Titlebar drag — skip traffic lights */
+  if (e.target.closest('.titlebar') && !e.target.closest('.traffic-lights')) {
+    startDrag(e, winEl.id);
+    return;
+  }
+
+  /* Resize handle */
+  if (e.target.closest('.resize-handle')) {
+    startResize(e, winEl.id);
+  }
+});
+
+/* ════════════════════════════════════════
+   KEYBOARD  — FIX #8 (ESC closes, not minimizes)
+════════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const f = document.querySelector('.window.focused');
+    if (f) closeWindow(f.id);   /* FIX #8 */
+  }
+});
+
+/* ════════════════════════════════════════
+   BOOT
+════════════════════════════════════════ */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const boot = document.getElementById('boot');
+    if (boot) boot.classList.add('hidden');
+
+    setTimeout(() => {
+      ['win-experience', 'win-projects'].forEach(id => {
+        const el = win(id);
+        if (el) { el.style.opacity = '1'; el.style.transform = 'scale(1) translateY(0)'; }
+        updateDot(id, true);
+      });
+    }, 180);
+
+    setTimeout(animateSkills, 750);
+    setTimeout(() => showNotif('✦', 'Welcome to Dipto.dev', 'Click to focus · Drag to move · ESC to close'), 1100);
+  }, 1350);
+});
+</script>
+</body>
+</html>
