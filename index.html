@@ -48,8 +48,40 @@
   }
   .brand { font-family: var(--font-display); font-size: 12.5px; font-weight: 800; color: var(--text); letter-spacing: -.4px; }
   .menu-items { display: flex; gap: 12px; }
-  .menu-items span { cursor: pointer; padding: 1px 6px; border-radius: 4px; transition: all .2s; }
+  .menu-items span { cursor: pointer; padding: 4px 12px; border-radius: 4px; transition: all .2s; }
   .menu-items span:hover { background: var(--green-pale); color: var(--green); }
+  /* ── cvbutton ── */
+  #cv-btn {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  /*font-weight: 700;*/
+  letter-spacing: .2px;
+  padding: 4px 12px;
+ /* border-radius: var(--radius-sm);   /* 7px — matches your .btn */
+  border-radius: 4px; 
+  /*background: var(--text); */
+  color: var(--text-muted);
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  /*box-shadow: 0 2px 7px var(--shadow);*/
+  /*transition: all .2s cubic-bezier(.34,1.56,.64,1);*/
+  transition: all .2s;
+  margin-left: auto;
+  white-space: nowrap;
+}
+#cv-btn:hover {
+  background: var(--green-pale);
+  color: var(--green);
+  /*transform: translateY(-2px);*/
+  /*box-shadow: 0 5px 18px var(--shadow-deep);*/
+}
+#cv-btn:active {
+  transform: scale(0.97);
+}
+#menubar-time {
+  margin-left: 10px;
+}
   #menubar-time { margin-left: auto; }
 
   /* ── DOCK ── */
@@ -361,7 +393,7 @@
     <div id="ww-date"></div>
   </div>
   <div class="ww" id="ww-bl">
-    <div>sys · portfolio_v3.0</div>
+    <div>sys · diptothakur</div>
     <div>node · 20.11.0</div>
     <div>next · 14.2.3</div>
   </div>
@@ -375,6 +407,11 @@
       <span onclick="openWindow('win-skills');focusWindow('win-skills')">Skills</span>
       <span onclick="openWindow('win-creative');focusWindow('win-creative')">Creative</span>
       <span onclick="openWindow('win-contact');focusWindow('win-contact')">Contact</span>
+      <a id="cv-btn"
+      href="YOUR_GOOGLE_DRIVE_DIRECT_DOWNLOAD_LINK_HERE"
+      target="_blank"
+      rel="noopener noreferrer"
+      download title="Download Résumé">Resume</a>
     </div>
     <div id="menubar-time"></div>
   </div>
@@ -558,9 +595,9 @@
       <div class="exp-item">
         <div class="exp-dot">🎓</div>
         <div class="exp-content">
-          <div class="exp-header"><div class="exp-role">B.Sc. Computer Science</div><div class="exp-date">2017 — 2021</div></div>
-          <div class="exp-company">// University of Technology</div>
-          <div class="exp-desc">First-class honors. Dissertation: "Adaptive Learning Systems in EdTech." Founding member of the Web Dev Society.</div>
+          <div class="exp-header"><div class="exp-role">B.Sc. Computer Science</div><div class="exp-date">2023 — 2027</div></div>
+          <div class="exp-company">// University of Calcutta</div>
+          <div class="exp-desc">First-class honors. Dissertation: "Adaptive Learning Systems in EdTech." 2nd in Annual Hackathon.</div>
         </div>
       </div>
     </div>

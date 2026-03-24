@@ -1,0 +1,106 @@
+<!-- ═══════════════════════════════════════════
+     CHANGE 1 — Replace your entire #menubar div with this
+════════════════════════════════════════════ -->
+<div id="menubar">
+  <div class="brand">Dipto.dev</div>
+  <div class="menu-items">
+    <span onclick="openWindow('win-hero');focusWindow('win-hero')">Profile</span>
+    <span onclick="openWindow('win-eduvault');focusWindow('win-eduvault')">EduVault</span>
+    <span onclick="openWindow('win-skills');focusWindow('win-skills')">Skills</span>
+    <span onclick="openWindow('win-creative');focusWindow('win-creative')">Creative</span>
+    <span onclick="openWindow('win-contact');focusWindow('win-contact')">Contact</span>
+  </div>
+  <!-- CV Download button — swap the href value with your Google Drive direct-download link -->
+  <a
+    id="cv-btn"
+    href="YOUR_GOOGLE_DRIVE_DIRECT_DOWNLOAD_LINK_HERE"
+    target="_blank"
+    rel="noopener noreferrer"
+    download
+    title="Download Résumé"
+  >
+    ↓ Resume
+  </a>
+  <div id="menubar-time"></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     CHANGE 1b — Add this CSS block inside your <style> tag
+     (paste anywhere before the closing </style>)
+════════════════════════════════════════════ -->
+<style>
+  #cv-btn {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .3px;
+    padding: 4px 11px;
+    border-radius: 6px;
+    background: var(--text);
+    color: #fff;
+    text-decoration: none;
+    border: 1px solid transparent;
+    transition: all .2s cubic-bezier(.34,1.56,.64,1);
+    margin-left: auto;          /* pushes it to the right of menu-items */
+    white-space: nowrap;
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+  #cv-btn:hover {
+    background: var(--green);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(107,158,120,0.35);
+  }
+  #cv-btn:active { transform: scale(0.97); }
+
+  /* nudge the clock so it doesn't crowd the button */
+  #menubar-time { margin-left: 10px; }
+</style>
+
+
+<!-- ═══════════════════════════════════════════
+     CHANGE 2 — Replace the entire .contact-links block inside #win-contact
+     (the three <a> tags inside <div class="contact-links">)
+════════════════════════════════════════════ -->
+<div class="contact-links">
+
+  <!-- Email — replace href with your real email -->
+  <a class="contact-link contact-btn" href="mailto:dipto@example.com">
+    <div class="contact-link-icon">📧</div>
+    <div class="contact-link-label">Email me</div>
+    <div class="contact-link-arr">›</div>
+  </a>
+
+  <!-- LinkedIn — replace href with your real profile URL -->
+  <a class="contact-link contact-btn" href="https://linkedin.com/in/diptothakur" target="_blank" rel="noopener noreferrer">
+    <div class="contact-link-icon">💼</div>
+    <div class="contact-link-label">LinkedIn</div>
+    <div class="contact-link-arr">›</div>
+  </a>
+
+  <!-- GitHub — replace href with your real profile URL -->
+  <a class="contact-link contact-btn" href="https://github.com/diptothakur-exe" target="_blank" rel="noopener noreferrer">
+    <div class="contact-link-icon">🐙</div>
+    <div class="contact-link-label">GitHub</div>
+    <div class="contact-link-arr">›</div>
+  </a>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     CHANGE 2b — Add this CSS inside your <style> tag
+     (the .contact-btn rule tightens the link height
+      now that the subtext is gone)
+════════════════════════════════════════════ -->
+<style>
+  /* Remove the two-line height now that subtext is gone */
+  .contact-btn {
+    padding: 11px 14px;        /* slightly more vertical comfort */
+    align-items: center;
+  }
+  .contact-btn .contact-link-label {
+    font-size: 12.5px;
+    font-weight: 500;
+  }
+</style>
