@@ -1,0 +1,63 @@
+/* components/theme/pull-cord.css */
+.pullcord-root {
+    position: relative;
+    width: 14px;
+    pointer-events: none;
+  }
+  
+  .pullcord-rope {
+    position: absolute;
+    top: 0;
+    left: 6px;
+    overflow: visible;
+  }
+  
+  .pullcord-rope line {
+    stroke: var(--ink-faint, #9a968d);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    opacity: 0.6;
+  }
+  
+  .pullcord-knob {
+    position: absolute;
+    top: -5px;
+    left: 0;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--ink-faint, #9a968d);
+    border: 1px solid var(--ink, #1b1a17);
+    cursor: grab;
+    pointer-events: auto;
+    touch-action: none;
+    transition: background-color 0.25s ease, border-color 0.25s ease;
+  }
+  
+  .pullcord-knob:active {
+    cursor: grabbing;
+  }
+  
+  .pullcord-knob:focus-visible {
+    outline: 2px solid var(--ink, #1b1a17);
+    outline-offset: 3px;
+  }
+  
+  .pullcord-enter {
+    animation: pullcord-drop 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  
+  @keyframes pullcord-drop {
+    from { transform: translateY(-12px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  .dark .theme-pullcord .pullcord-knob {
+    background: var(--paper, #f3f1ea);
+    border-color: var(--paper, #f3f1ea);
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .pullcord-enter { animation: none; }
+    .pullcord-knob, .pullcord-rope line { transition: none; }
+  }

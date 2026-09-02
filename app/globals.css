@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: #EFEDE7;
+  transition: background-color 0.3s ease;
+}
+
+.dark body {
+  background-color: #141311;
+}
+
+* {
+  scrollbar-width: thin;
+}
+
+::selection {
+  background: #1B1A17;
+  color: #FAF9F5;
+}
+
+.dark ::selection {
+  background: #FAF9F5;
+  color: #1B1A17;
+}
+
+/* the A4 sheet itself never inverts — it stays paper regardless of theme */
+.sheet {
+  background-color: #FAF9F5;
+  color: #1B1A17;
+}
+
+/* letterpress: ink pressed into paper, not glowing ink on top of it */
+.ink-imprint {
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6),
+    0 -1px 1px rgba(27, 26, 23, 0.12),
+    0 2px 5px rgba(27, 26, 23, 0.05);
+}
+
+/* hand-drawn ink stroke underline, not a ruled line */
+.ink-link {
+  position: relative;
+  text-decoration: none;
+  padding-bottom: 0.14em;
+}
+.ink-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.03em;
+  height: 6px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 6' preserveAspectRatio='none'><path d='M0,3 Q3,0.8 6,3 T12,3.4 T18,2.6 T24,3.2 T30,2.8 T36,3' stroke='%235B5852' stroke-width='0.9' fill='none' stroke-linecap='round'/></svg>");
+  background-repeat: repeat-x;
+  background-position: 0 100%;
+  background-size: 34px 6px;
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+.ink-link:hover::after {
+  opacity: 1;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 6' preserveAspectRatio='none'><path d='M0,3 Q3,0.8 6,3 T12,3.4 T18,2.6 T24,3.2 T30,2.8 T36,3' stroke='%231B1A17' stroke-width='1' fill='none' stroke-linecap='round'/></svg>");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+:focus-visible {
+  outline: 1px solid #1B1A17;
+  outline-offset: 3px;
+}
+
+.dark :focus-visible {
+  outline-color: #EFEDE7;
+}
